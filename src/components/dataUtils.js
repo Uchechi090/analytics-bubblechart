@@ -80,7 +80,7 @@ export const generateRandomColour = () => {
 //This filters the results array based on the range of total funding amount
 export const filterFundingRange = (totalfundingAmount, results) => {
   const categories = results.filter(
-    result => result.fundingAmount >= totalfundingAmount
+    result => result.fundingAmount <= totalfundingAmount
   );
 
   return categories;
