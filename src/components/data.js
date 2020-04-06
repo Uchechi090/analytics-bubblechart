@@ -1,3 +1,4 @@
+//This file is for sample data used in the test file
 export const resultsArray = [
   {
     id: 101,

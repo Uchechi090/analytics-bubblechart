@@ -17,12 +17,13 @@ class BubbleChart extends Component {
     this.myRef = React.createRef();
   }
 
+  //fetching the data and setting to state using the utility functions
   getFundingData = () => {
     fetch("http://demo0377384.mockable.io/funding-test")
       .then(res => res.json())
       .then(
         results => {
-          console.log(results);
+          //console.log(results);
           const totalVolumeOfFunding = volumeOfFunding(results);
           const totalFundingRounds = fundingRoundsPerCategory(results);
 
@@ -34,14 +35,16 @@ class BubbleChart extends Component {
       );
   };
 
+  //The function for making the bubble chart
   makeBubbleChart = data => {
     const width = 700;
     const height = 500;
     const padding = 50;
 
+    //declaring scaling for the x and y axes
     const xScale = d3
       .scaleLinear()
-      .domain([6000000, 60000000])//([d3.min(data), d3.max(data)])
+      .domain([6000000, 60000000]) //([d3.min(data), d3.max(data)])
       .range([padding, width - padding]); //.range([6000000, 60000000]);
 
     //domain values are so because there are 5 categories and I am plotting
@@ -54,11 +57,13 @@ class BubbleChart extends Component {
     const xAxis = d3.axisBottom(xScale);
     const yAxis = d3.axisLeft(yScale);
 
+    //scaling for size of the bubble
     const bubbleSize = d3
       .scaleLinear()
       .domain([70000, 50000000])
-      .range([1000, 10000])//.range([1, 5]);
+      .range([1000, 10000]); //.range([1, 5]);
 
+    //creating the canvas
     const svgCanvas = d3
       .select(this.myRef.current)
       .append("svg")
@@ -66,28 +71,30 @@ class BubbleChart extends Component {
       .attr("height", height)
       .style("border", "1px solid cyan");
 
+    //creating the bubbles
     svgCanvas
       .selectAll(".bubble")
       .data(data)
       .enter()
       .append("circle")
       .attr("r", 0)
-    //   .attr("cx", (d) => xScale(d.amount))
-    //   .attr("cy", (d) => yScale(d.categoryNumber))
-    //   .attr("r", d => bubbleSize(d)) //.attr("r", 0)
+      //   .attr("cx", (d) => xScale(d.amount))
+      //   .attr("cy", (d) => yScale(d.categoryNumber))
+      //   .attr("r", d => bubbleSize(d)) //.attr("r", 0)
       .classed("bubble", true)
       .attr("fill", generateRandomColour())
-      .attr("stroke", d3.rgb().darker())
+      .attr("stroke", d3.rgb().darker());
 
     const bubbles = d3.selectAll(".bubble");
     bubbles
       .attr("stroke-width", 2)
       .transition()
       .duration(100)
-      .attr("cx", (d) => xScale(d.amount))
-      .attr("cy", (d) => yScale(d.categoryNumber))
+      .attr("cx", d => xScale(d.amount))
+      .attr("cy", d => yScale(d.categoryNumber))
       .attr("r", d => bubbleSize(d));
 
+    //adding the x and y axes
     svgCanvas
       .append("g")
       .attr("transform", "translate(0," + (height - padding) + ")")
@@ -105,7 +112,17 @@ class BubbleChart extends Component {
   }
 
   render() {
-    return <div ref={this.myRef}></div>;
+    return (
+      <div ref={this.myRef}>
+        <div>
+          <label>Data:</label>
+          <select>
+            <option value="">Funding Amount</option>
+            <option value="">Funding Rounds per Category</option>
+          </select>
+        </div>
+      </div>
+    );
   }
 }
 
