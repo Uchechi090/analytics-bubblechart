@@ -76,3 +76,12 @@ export const generateRandomColour = () => {
 
   return randomColour;
 };
+
+//This filters the results array based on the range of total funding amount
+export const filterFundingRange = (totalfundingAmount, results) => {
+  const categories = results.filter(
+    result => result.fundingAmount >= totalfundingAmount
+  );
+
+  return categories;
+};

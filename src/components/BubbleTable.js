@@ -1,9 +1,9 @@
 import React from "react";
 
-import "./RenderTable.css";
+import "./BubbleTable.css";
 
 //This is to render a table dynamically for a funding range
-const RenderTable = ({
+const BubbleTable = ({
   id,
   category,
   location,
@@ -30,4 +30,4 @@ const RenderTable = ({
   </div>
 );
 
-export default RenderTable;
+export default BubbleTable;

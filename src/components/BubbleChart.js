@@ -4,18 +4,30 @@ import * as d3 from "d3";
 import {
   volumeOfFunding,
   fundingRoundsPerCategory,
-  generateRandomColour
+  generateRandomColour,
+  filterFundingRange
 } from "./dataUtils";
+import BubbleTable from "./BubbleTable";
 
 class BubbleChart extends Component {
   constructor(props) {
     super(props);
     this.state = {
       totalVolumeOfFunding: [],
-      totalFundingRounds: []
+      totalFundingRounds: [],
+      results: [],
+      categoriesArray: []
     };
     this.myRef = React.createRef();
   }
+
+  //This sets the array of categories in a funding range to state
+  setFundingRange = totalFundingAmount => {
+    const { results } = this.state;
+    const categoriesArray = filterFundingRange(totalFundingAmount, results);
+
+    this.setState({ categoriesArray });
+  };
 
   //fetching the data and setting to state using the utility functions
   getFundingData = () => {
@@ -24,10 +36,14 @@ class BubbleChart extends Component {
       .then(
         results => {
           //console.log(results);
+          this.setState({ results });
           const totalVolumeOfFunding = volumeOfFunding(results);
           const totalFundingRounds = fundingRoundsPerCategory(results);
 
-          this.setState({ totalVolumeOfFunding, totalFundingRounds });
+          this.setState(
+            { totalVolumeOfFunding, totalFundingRounds },
+            this.makeBubbleChart(totalVolumeOfFunding)
+          );
         },
         error => {
           console.log(error);
@@ -44,8 +60,8 @@ class BubbleChart extends Component {
     //declaring scaling for the x and y axes
     const xScale = d3
       .scaleLinear()
-      .domain([6000000, 60000000]) //([d3.min(data), d3.max(data)])
-      .range([padding, width - padding]); //.range([6000000, 60000000]);
+      .domain([0, d3.max(data, d => d.amount)])
+      .range([padding, width - padding]);
 
     //domain values are so because there are 5 categories and I am plotting
     //categories against total numbers of funding volumes and rounds
@@ -59,9 +75,9 @@ class BubbleChart extends Component {
 
     //scaling for size of the bubble
     const bubbleSize = d3
-      .scaleLinear()
-      .domain([70000, 50000000])
-      .range([1000, 10000]); //.range([1, 5]);
+      .scaleQuantize()
+      .domain([0, d3.max(data, d => d.amount)])
+      .range([10, 50]);
 
     //creating the canvas
     const svgCanvas = d3
@@ -78,12 +94,9 @@ class BubbleChart extends Component {
       .enter()
       .append("circle")
       .attr("r", 0)
-      //   .attr("cx", (d) => xScale(d.amount))
-      //   .attr("cy", (d) => yScale(d.categoryNumber))
-      //   .attr("r", d => bubbleSize(d)) //.attr("r", 0)
       .classed("bubble", true)
-      .attr("fill", generateRandomColour())
-      .attr("stroke", d3.rgb().darker());
+      .attr("fill", "red")
+      .attr("stroke", d3.rgb("red").darker());
 
     const bubbles = d3.selectAll(".bubble");
     bubbles
@@ -92,7 +105,8 @@ class BubbleChart extends Component {
       .duration(100)
       .attr("cx", d => xScale(d.amount))
       .attr("cy", d => yScale(d.categoryNumber))
-      .attr("r", d => bubbleSize(d));
+      .attr("r", d => bubbleSize(d.amount))
+      .on("click", d => this.setFundingRange(d.amount));
 
     //adding the x and y axes
     svgCanvas
@@ -108,20 +122,39 @@ class BubbleChart extends Component {
 
   componentDidMount() {
     this.getFundingData();
-    this.makeBubbleChart(this.state.totalVolumeOfFunding);
   }
 
   render() {
+    const {
+      categoriesArray,
+      totalVolumeOfFunding,
+      totalFundingRounds
+    } = this.state;
     return (
-      <div ref={this.myRef}>
-        <div>
-          <label>Data:</label>
-          <select>
-            <option value="">Funding Amount</option>
-            <option value="">Funding Rounds per Category</option>
-          </select>
+      <>
+        <div ref={this.myRef}>
+          <div>
+            <label>Data: </label>
+            <select>
+              <option value={totalVolumeOfFunding}>Funding Amount</option>
+              <option value={totalFundingRounds}>
+                Funding Rounds per Category
+              </option>
+            </select>
+          </div>
         </div>
-      </div>
+        {categoriesArray.length
+          ? categoriesArray.map(item => (
+              <BubbleTable
+                id={item.id}
+                category={item.category}
+                location={item.location}
+                fundingAmount={item.fundingAmount}
+                announcedDate={item.announcedDate}
+              />
+            ))
+          : null}
+      </>
     );
   }
 }
