@@ -3,12 +3,12 @@ export const filterByCategory = (results, category) => {
   return newCategory;
 };
 
-export const aggregateAmount = itemsArray => {
+export const aggregateAmount = (itemsArray, counter) => {
   const aggregatedAmount = itemsArray.reduce(
     (accumulatedAmount, item) => accumulatedAmount + item.fundingAmount,
     0
   );
-  return aggregatedAmount;
+  return { amount: aggregatedAmount, categoryNumber: counter += 1 };
 };
 
 export const filterRoundsByCategory = (results, category) => {
@@ -22,20 +22,20 @@ export const volumeOfFunding = results => {
   const totalVolumeOfFunding = [];
 
   const beautyCategory = filterByCategory(results, "Beauty");
-  totalVolumeOfFunding.push(aggregateAmount(beautyCategory));
+  totalVolumeOfFunding.push(aggregateAmount(beautyCategory, 0));
 
-  //console.log(totalVolumeOfFunding);
   const healthCategory = filterByCategory(results, "Health");
-  totalVolumeOfFunding.push(aggregateAmount(healthCategory));
+  totalVolumeOfFunding.push(aggregateAmount(healthCategory, 1));
 
   const gamesCategory = filterByCategory(results, "Games");
-  totalVolumeOfFunding.push(aggregateAmount(gamesCategory));
+  totalVolumeOfFunding.push(aggregateAmount(gamesCategory, 2));
 
   const toolsCategory = filterByCategory(results, "Tools");
-  totalVolumeOfFunding.push(aggregateAmount(toolsCategory));
+  totalVolumeOfFunding.push(aggregateAmount(toolsCategory, 3));
 
   const automotiveCategory = filterByCategory(results, "Automotive");
-  totalVolumeOfFunding.push(aggregateAmount(automotiveCategory));
+  totalVolumeOfFunding.push(aggregateAmount(automotiveCategory, 4));
+  console.log(totalVolumeOfFunding);
 
   return totalVolumeOfFunding;
 };
@@ -60,4 +60,10 @@ export const fundingRoundsPerCategory = results => {
   //console.log(totalFundingRounds);
 
   return totalFundingRounds;
+};
+
+export const generateRandomColour = () => {
+  var randomColour = "#" + Math.floor(Math.random() * 16777215).toString(16);
+
+  return randomColour;
 };
