@@ -21,8 +21,9 @@ class BubbleChart extends Component {
     this.myRef = React.createRef();
   }
 
-  //This sets the array of categories in a funding range to state
-  setFundingRange = totalFundingAmount => {
+  //This sets the array of categories in a funding range to statea
+  setFundingRange = (e, totalFundingAmount) => {
+    //event.preventDefault();
     const { results } = this.state;
     const categoriesArray = filterFundingRange(totalFundingAmount, results);
 
@@ -106,7 +107,8 @@ class BubbleChart extends Component {
       .attr("cx", d => xScale(d.amount))
       .attr("cy", d => yScale(d.categoryNumber))
       .attr("r", d => bubbleSize(d.amount))
-      .on("click", d => this.setFundingRange(d.amount));
+      
+    bubbles.on("click", (d, e)=> this.setFundingRange(e, d.amount))
 
     //adding the x and y axes
     svgCanvas
